@@ -1,0 +1,15 @@
+{
+  "name": "garage-workshop",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/viewer.js --bundle --minify --format=esm --target=es2020 --outfile=docs/viewer.js"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
