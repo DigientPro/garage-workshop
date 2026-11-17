@@ -10,7 +10,7 @@ const status = document.getElementById('status');
 const buttons = Object.fromEntries(
   Array.from(document.querySelectorAll('button'), button => [button.id, button]),
 );
-const modelURL = new URL('./garage.glb?v=3', document.baseURI);
+const modelURL = new URL('./garage.glb?v=4', document.baseURI);
 const state = { floor: true, ceiling: true, floorMode: 'joists' };
 
 start().catch(() => {
