@@ -7,11 +7,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const canvas = document.querySelector('canvas');
 const status = document.getElementById('status');
-const entranceLabel = document.getElementById('entrance-label');
 const buttons = Object.fromEntries(
   Array.from(document.querySelectorAll('button'), button => [button.id, button]),
 );
-const modelURL = new URL('./garage.glb?v=2', document.baseURI);
+const modelURL = new URL('./garage.glb?v=3', document.baseURI);
 const state = { floor: true, ceiling: true, floorMode: 'joists' };
 
 start().catch(() => {
@@ -37,8 +36,6 @@ async function start() {
   const floorBase = model.getObjectByName('floor-base');
   const joists = model.getObjectByName('joists');
   const deck = model.getObjectByName('deck');
-  const entrance = model.getObjectByName('entrance').getWorldPosition(new Vector3());
-  const projectedEntrance = new Vector3();
   const room = new Box3().setFromObject(model.getObjectByName('walls'));
   const center = room.getCenter(new Vector3());
   const corners = [room.min.x, room.max.x].flatMap(x =>
@@ -62,20 +59,9 @@ async function start() {
       frame = 0;
       orbit.update();
       renderer.render(scene, camera);
-      positionEntranceLabel();
     });
   }
   orbit.addEventListener('change', requestRender);
-
-  function positionEntranceLabel() {
-    const { x, y, z } = projectedEntrance.copy(entrance).project(camera);
-    const left = (x + 1) * canvas.clientWidth / 2;
-    const top = (1 - y) * canvas.clientHeight / 2;
-    entranceLabel.hidden = z < -1 || z > 1 || left < 34 || left > canvas.clientWidth - 34
-      || top < 36 || top > canvas.clientHeight;
-    entranceLabel.style.left = `${left}px`;
-    entranceLabel.style.top = `${top}px`;
-  }
 
   function applyFrustum() {
     camera.left = -frameSize * viewportAspect;
