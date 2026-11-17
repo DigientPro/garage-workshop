@@ -12,12 +12,18 @@ const buttons = Object.fromEntries(
 );
 const modelURL = new URL('./garage.glb?v=4', document.baseURI);
 const state = { floor: true, ceiling: true, deck: false, joists: true };
-const viewer = document.querySelector('.viewer');
 const menuToggle = buttons['menu-toggle'];
-menuToggle.addEventListener('click', () => {
-  const collapsed = viewer.classList.toggle('menu-collapsed');
-  menuToggle.setAttribute('aria-expanded', String(!collapsed));
-  menuToggle.textContent = collapsed ? 'Показать меню' : 'Скрыть меню';
+const layerMenu = document.getElementById('layer-menu');
+function showLayerMenu(show) {
+  layerMenu.hidden = !show;
+  menuToggle.setAttribute('aria-expanded', String(show));
+}
+menuToggle.addEventListener('click', () => showLayerMenu(layerMenu.hidden));
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape' || layerMenu.hidden) return;
+  const focusWasInside = layerMenu.contains(document.activeElement);
+  showLayerMenu(false);
+  if (focusWasInside) menuToggle.focus();
 });
 
 start().catch(() => {
@@ -165,6 +171,7 @@ async function start() {
   new ResizeObserver(resize).observe(canvas);
   updateLayers();
   showOverview();
-  document.getElementById('controls').disabled = false;
+  document.getElementById('view-controls').disabled = false;
+  document.getElementById('layer-controls').disabled = false;
   status.hidden = true;
 }
