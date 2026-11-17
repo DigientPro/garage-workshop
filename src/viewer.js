@@ -51,6 +51,7 @@ async function start() {
   const deck = model.getObjectByName('deck');
   const room = new Box3().setFromObject(model.getObjectByName('walls'));
   const center = room.getCenter(new Vector3());
+  const floorTop = new Box3().setFromObject(joists).union(new Box3().setFromObject(deck)).max.y;
   const corners = [room.min.x, room.max.x].flatMap(x =>
     [room.min.y, room.max.y].flatMap(y => [room.min.z, room.max.z].map(z => new Vector3(x, y, z))),
   );
@@ -108,11 +109,11 @@ async function start() {
     requestRender();
   }
 
-  function setCamera(x, y, z) {
+  function setCamera(x, y, z, distance = 14) {
     orbit.reset();
     camera.zoom = 1;
     orbit.target.copy(center);
-    camera.position.copy(center).addScaledVector(new Vector3(x, y, z).normalize(), 14);
+    camera.position.copy(center).addScaledVector(new Vector3(x, y, z).normalize(), distance);
     camera.lookAt(center);
     orbit.update();
     fitFrustum();
@@ -124,11 +125,13 @@ async function start() {
     setCamera(1, .265, .57);
   }
 
-  function showPlan(height) {
+  function showPlan(direction) {
+    // Look from inside the room so the opposite surface cannot obscure the plan.
+    const distance = direction > 0 ? (room.max.y - center.y) / 2 : center.y - floorTop - .12;
     if (viewportAspect < .9) {
-      setCamera(.001, height, 0);
+      setCamera(.001, direction, 0, distance);
     } else {
-      setCamera(0, height, .001);
+      setCamera(0, direction, .001, distance);
     }
   }
 
@@ -150,12 +153,7 @@ async function start() {
   }
   buttons.overview.addEventListener('click', showOverview);
   buttons.above.addEventListener('click', () => showPlan(1));
-  buttons.below.addEventListener('click', () => {
-    state.ceiling = true;
-    state.floor = false;
-    updateLayers();
-    showPlan(-1);
-  });
+  buttons.below.addEventListener('click', () => showPlan(-1));
 
   // Keyboard zoom complements OrbitControls' pointer, wheel and pinch gestures.
   canvas.addEventListener('keydown', event => {
