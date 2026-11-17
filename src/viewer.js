@@ -11,7 +11,14 @@ const buttons = Object.fromEntries(
   Array.from(document.querySelectorAll('button'), button => [button.id, button]),
 );
 const modelURL = new URL('./garage.glb?v=4', document.baseURI);
-const state = { floor: true, ceiling: true, floorMode: 'joists' };
+const state = { floor: true, ceiling: true, deck: false, joists: true };
+const viewer = document.querySelector('.viewer');
+const menuToggle = buttons['menu-toggle'];
+menuToggle.addEventListener('click', () => {
+  const collapsed = viewer.classList.toggle('menu-collapsed');
+  menuToggle.setAttribute('aria-expanded', String(!collapsed));
+  menuToggle.textContent = collapsed ? 'Показать меню' : 'Скрыть меню';
+});
 
 start().catch(() => {
   const link = document.createElement('a');
@@ -53,15 +60,19 @@ async function start() {
   let viewportAspect = 1;
   let frameSize = 4;
   let frame = 0;
+  let orbitInMotion = false;
   function requestRender() {
     if (frame) return;
     frame = requestAnimationFrame(() => {
       frame = 0;
-      orbit.update();
+      if (orbitInMotion) orbitInMotion = orbit.update();
       renderer.render(scene, camera);
     });
   }
-  orbit.addEventListener('change', requestRender);
+  orbit.addEventListener('change', () => {
+    orbitInMotion = true;
+    requestRender();
+  });
 
   function applyFrustum() {
     camera.left = -frameSize * viewportAspect;
@@ -118,35 +129,19 @@ async function start() {
   function updateLayers() {
     roof.visible = state.ceiling;
     floorBase.visible = state.floor;
-    joists.visible = state.floor && state.floorMode === 'joists';
-    deck.visible = state.floor && state.floorMode === 'deck';
-    buttons.floor.textContent = state.floor ? 'Скрыть пол' : 'Показать пол';
-    buttons.ceiling.textContent = state.ceiling ? 'Скрыть потолок' : 'Показать потолок';
-    for (const mode of ['deck', 'joists']) {
-      buttons[mode].setAttribute('aria-pressed', String(state.floorMode === mode));
-    }
+    joists.visible = state.floor && state.joists;
+    deck.visible = state.floor && state.deck;
+    buttons.deck.disabled = buttons.joists.disabled = !state.floor;
+    for (const [name, visible] of Object.entries(state)) buttons[name].setAttribute('aria-pressed', String(visible));
     requestRender();
   }
 
-  for (const mode of ['deck', 'joists']) {
-    buttons[mode].addEventListener('click', () => {
-      state.floorMode = mode;
-      state.floor = true;
+  for (const name of Object.keys(state)) {
+    buttons[name].addEventListener('click', () => {
+      state[name] = !state[name];
       updateLayers();
-      if (camera.position.y < room.min.y) showOverview();
     });
   }
-  buttons.floor.addEventListener('click', () => {
-    state.floor = !state.floor;
-    updateLayers();
-    if (state.floor && camera.position.y < room.min.y) showOverview();
-  });
-  buttons.ceiling.addEventListener('click', () => {
-    state.ceiling = !state.ceiling;
-    updateLayers();
-    if (state.ceiling && camera.position.y > room.max.y) showOverview();
-    if (!state.ceiling && camera.position.y < room.min.y) showOverview();
-  });
   buttons.overview.addEventListener('click', showOverview);
   buttons.above.addEventListener('click', () => showPlan(1));
   buttons.below.addEventListener('click', () => {

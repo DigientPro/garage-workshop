@@ -17,9 +17,14 @@ body { margin: 0; }
   height: 100dvh;
 }
 header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left));
   border-bottom: 1px solid var(--border);
 }
+.menu-toggle { display: none; }
 h1 {
   font-size: clamp(1.1rem, 2.5vw, 1.4rem);
   letter-spacing: -.025em;
@@ -60,10 +65,22 @@ button {
   color: inherit;
   font: 580 .875rem/1.2 "Atkinson Hyperlegible Next", system-ui, sans-serif;
   cursor: pointer;
+  touch-action: manipulation;
   overflow-wrap: anywhere;
 }
-button[aria-pressed="true"] { background: var(--active); border-color: var(--active-border); }
-.layers button { border-color: #a7afa3; }
+.layer-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; border-color: #a7afa3; }
+.layer-indicator {
+  flex: 0 0 16px;
+  height: 16px;
+  border: 1px solid #718072;
+  border-radius: 3px;
+  color: transparent;
+  font-size: 12px;
+  line-height: 14px;
+  text-align: center;
+}
+.layer-toggle[aria-pressed="true"] { background: var(--active); border-color: var(--active-border); }
+.layer-toggle[aria-pressed="true"] .layer-indicator { background: #3d5945; border-color: #3d5945; color: #fcfbf7; }
 button:disabled { cursor: default; opacity: .55; }
 button:focus-visible, canvas:focus-visible { outline: 3px solid #446b50; outline-offset: -3px; }
 @media (hover: hover) {
@@ -76,6 +93,11 @@ button:focus-visible, canvas:focus-visible { outline: 3px solid #446b50; outline
 @media (min-width: 900px) {
   fieldset { grid-template-columns: 3fr 2fr 2.6fr; width: min(100%, 920px); gap: 16px; }
   .layers { grid-column: auto; justify-self: stretch; grid-auto-columns: 1fr; }
+}
+@media (max-width: 639px), (max-width: 960px) and (orientation: landscape) and (max-height: 460px) {
+  .menu-toggle { display: block; padding-inline: 10px; }
+  .viewer.menu-collapsed .controls { display: none; }
+  .viewer.menu-collapsed .stage { grid-column: 1 / -1; }
 }
 @media (orientation: landscape) and (max-height: 460px) {
   .viewer {

@@ -5,33 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f6f5ef">
   <title>Мастерская · 3D-план</title>
-  <link rel="stylesheet" href="./style.css?v=3">
+  <link rel="stylesheet" href="./style.css?v=5">
 </head>
 <body>
   <main class="viewer">
-    <header><h1>Мастерская</h1></header>
+    <header>
+      <h1>Мастерская</h1>
+      <button type="button" class="menu-toggle" id="menu-toggle" aria-expanded="true" aria-controls="viewer-controls">Скрыть меню</button>
+    </header>
     <section class="stage" id="stage" aria-label="Модель гаража">
       <canvas tabindex="0" aria-label="3D-модель гаража. Перетаскивайте для поворота, масштабируйте колесом или двумя пальцами."></canvas>
       <p id="status" role="status">Загрузка модели…</p>
     </section>
-    <div class="controls">
+    <div class="controls" id="viewer-controls">
       <fieldset disabled id="controls">
         <div class="toolbar" role="group" aria-label="Ракурс">
           <button type="button" id="overview">Общий вид</button>
           <button type="button" id="above">Сверху</button>
           <button type="button" id="below">На потолок</button>
         </div>
-        <div class="toolbar floor-options" role="group" aria-label="Вариант пола">
-          <button type="button" id="deck" aria-pressed="false">Настил ОСБ</button>
-          <button type="button" id="joists" aria-pressed="true">Лаги и люк</button>
+        <div class="toolbar" role="group" aria-label="Слои пола">
+          <button type="button" class="layer-toggle" id="deck" aria-pressed="false"><span class="layer-indicator" aria-hidden="true">✓</span>Настил ОСБ</button>
+          <button type="button" class="layer-toggle" id="joists" aria-pressed="true"><span class="layer-indicator" aria-hidden="true">✓</span>Лаги и люк</button>
         </div>
         <div class="toolbar layers" role="group" aria-label="Видимость пола и потолка">
-          <button type="button" id="floor" aria-controls="stage">Скрыть пол</button>
-          <button type="button" id="ceiling" aria-controls="stage">Скрыть потолок</button>
+          <button type="button" class="layer-toggle" id="floor" aria-pressed="true"><span class="layer-indicator" aria-hidden="true">✓</span>Пол</button>
+          <button type="button" class="layer-toggle" id="ceiling" aria-pressed="true"><span class="layer-indicator" aria-hidden="true">✓</span>Потолок</button>
         </div>
       </fieldset>
     </div>
   </main>
-  <script type="module" src="./viewer.js?v=4"></script>
+  <script type="module" src="./viewer.js?v=5"></script>
 </body>
 </html>
